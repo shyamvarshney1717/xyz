@@ -241,13 +241,24 @@ with col2:
         if 'Match Score (%)' in df.columns:
             df['Match Score (%)'] = pd.to_numeric(df['Match Score (%)'], errors='coerce').fillna(0.0)
 
-        # Apply a green-to-red gradient where high scores are green and low scores red.
-        # Use RdYlGn so low->high maps red->yellow->green.
-        styler = df.style.format({
-            'Match Score (%)': '{:.1f}'
-        }).background_gradient(subset=['Match Score (%)'], cmap='RdYlGn', vmin=0, vmax=100)
+        # Try to apply a green-to-red gradient where high scores are green and low scores red.
+        # Pandas Styler background_gradient requires matplotlib. If matplotlib is not
+        # installed, fall back to an unstyled table and show an install hint.
+        try:
+            # Check for matplotlib availability without importing it directly
+            import importlib
+            if importlib.util.find_spec('matplotlib') is None:
+                raise ImportError('matplotlib not installed')
 
-        st.dataframe(styler, use_container_width=True)
+            # Use RdYlGn so low->high maps red->yellow->green.
+            styler = df.style.format({
+                'Match Score (%)': '{:.1f}'
+            }).background_gradient(subset=['Match Score (%)'], cmap='RdYlGn', vmin=0, vmax=100)
+
+            st.dataframe(styler, use_container_width=True)
+        except Exception:
+            st.warning("Optional package 'matplotlib' is not installed — showing unstyled table.\nTo enable colored styling run: `pip install matplotlib`")
+            st.dataframe(df, use_container_width=True)
 
         st.markdown("---")
         st.header("Per-SKU Breakdown")
