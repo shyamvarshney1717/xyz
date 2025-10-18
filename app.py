@@ -182,7 +182,9 @@ def run_matching_algorithm():
         results.append({
             "SKU": product['sku'],
             "Match Score (%)": f"{score:.1f}",
-            "breakdown": breakdown
+            "breakdown": breakdown,
+            # Include product specs so the UI can display required vs product values per spec
+            "product_specs": product.get('specs', {})
         })
     sorted_results = sorted(results, key=lambda x: float(x['Match Score (%)']), reverse=True)
     return sorted_results
@@ -200,7 +202,23 @@ with col1:
     st.header("RFP Requirements")
     # Display the RFP requirements (loaded from rfp.json)
     rfp_specs, _ = load_data()
-    st.json(rfp_specs)
+    # Render RFP requirements as a clean table: Spec | Required Value | Weight
+    rfp_rows = []
+    for spec_key, required_value in rfp_specs.items():
+        # If a weight exists for this spec, show it; otherwise leave blank
+        weight = SPEC_WEIGHTS.get(spec_key)
+        # Ensure values render nicely (convert complex types to string)
+        display_value = required_value if isinstance(required_value, (str, int, float, bool)) else json.dumps(required_value)
+        rfp_rows.append({
+            'RFP Spec': spec_key,
+            'Required Value': display_value,
+            'Weight': weight if weight is not None else ''
+        })
+
+    if rfp_rows:
+        st.table(pd.DataFrame(rfp_rows))
+    else:
+        st.info("No RFP requirements found. Provide an `rfp.json` with `specs_required`.")
 
 with col2:
     st.header("Matching Results")
@@ -212,8 +230,24 @@ with col2:
         # Display the results in a nice table
         st.success(f"Analysis Complete! Found {len(top_matches)} potential matches.")
         
+        # Build DataFrame for display but hide the internal 'breakdown' column
         df = pd.DataFrame(top_matches)
-        st.dataframe(df.style.highlight_max(axis=0, subset=['Match Score (%)'], color='lightgreen'), use_container_width=True)
+        if 'breakdown' in df.columns:
+            # Keep breakdown data in the results list for the per-SKU expanders,
+            # but remove it from the main table that users see.
+            df = df.drop(columns=['breakdown'])
+
+        # Ensure Match Score is numeric for styling. Convert safely and fill missing with 0.
+        if 'Match Score (%)' in df.columns:
+            df['Match Score (%)'] = pd.to_numeric(df['Match Score (%)'], errors='coerce').fillna(0.0)
+
+        # Apply a green-to-red gradient where high scores are green and low scores red.
+        # Use RdYlGn so low->high maps red->yellow->green.
+        styler = df.style.format({
+            'Match Score (%)': '{:.1f}'
+        }).background_gradient(subset=['Match Score (%)'], cmap='RdYlGn', vmin=0, vmax=100)
+
+        st.dataframe(styler, use_container_width=True)
 
         st.markdown("---")
         st.header("Per-SKU Breakdown")
@@ -223,18 +257,32 @@ with col2:
             sku = result.get('SKU')
             score = result.get('Match Score (%)')
             breakdown = result.get('breakdown', {})
+            product_specs = result.get('product_specs', {})
             with st.expander(f"{sku} — {score}%"):
-                # Present breakdown as a small table with spec, fraction and percentage
+                # Build a clear per-spec table: RFP Spec | Required Value | Product Value | Match? | Score Contribution (Weight)
                 rows = []
-                for spec, frac in breakdown.items():
+                # iterate over the RFP's required specs so order and presence are consistent
+                for spec_key, required_value in rfp_specs.items():
+                    prod_value = product_specs.get(spec_key, '—')
+                    frac = breakdown.get(spec_key, 0.0)
+                    # Consider a spec matched if the fractional match is effectively 1.0 (allow small tolerance)
+                    matched = True if frac >= 0.999 else False
+                    # Weight display (if known)
+                    weight = SPEC_WEIGHTS.get(spec_key, None)
+                    weight_display = f"(Weight: {weight})" if weight is not None else ""
+
                     rows.append({
-                        'spec': spec,
-                        'fraction': frac,
-                        'contribution (%)': f"{frac * 100:.1f}"
+                        'RFP Spec': spec_key,
+                        'Required Value': required_value,
+                        'Product Value': prod_value,
+                        'Match?': '✅' if matched else '❌',
+                        'Score Contribution': weight_display
                     })
+
                 if rows:
                     st.table(pd.DataFrame(rows))
                 else:
                     st.write("No breakdown available for this SKU.")
+
     else:
         st.info("Click 'Analyze RFP' to see the results.")
