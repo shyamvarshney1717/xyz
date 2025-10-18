@@ -1,0 +1,72 @@
+[
+  {
+    "sku": "POLYCAB-3C-AL-XLPE-16",
+    "product_name": "Three Core Aluminium XLPE Armoured Cable",
+    "specs": {
+      "cores": 3,
+      "conductor_material": "Aluminium",
+      "nominal_size_sqmm": 16,
+      "insulation_type": "XLPE",
+      "insulation_thickness_mm": 0.70,
+      "voltage": 1100,
+      "current_rating_ground_amps": 74,
+      "current_rating_air_amps": 69
+    }
+  },
+  {
+    "sku": "POLYCAB-3C-AL-XLPE-25",
+    "product_name": "Three Core Aluminium XLPE Armoured Cable",
+    "specs": {
+      "cores": 3,
+      "conductor_material": "Aluminium",
+      "nominal_size_sqmm": 25,
+      "insulation_type": "XLPE",
+      "insulation_thickness_mm": 0.90,
+      "voltage": 1100,
+      "current_rating_ground_amps": 95,
+      "current_rating_air_amps": 93
+    }
+  },
+  {
+    "sku": "POLYCAB-3C-AL-XLPE-35",
+    "product_name": "Three Core Aluminium XLPE Armoured Cable",
+    "specs": {
+      "cores": 3,
+      "conductor_material": "Aluminium",
+      "nominal_size_sqmm": 35,
+      "insulation_type": "XLPE",
+      "insulation_thickness_mm": 0.90,
+      "voltage": 1100,
+      "current_rating_ground_amps": 114,
+      "current_rating_air_amps": 114
+    }
+  },
+  {
+    "sku": "POLYCAB-3C-AL-XLPE-50",
+    "product_name": "Three Core Aluminium XLPE Armoured Cable",
+    "specs": {
+      "cores": 3,
+      "conductor_material": "Aluminium",
+      "nominal_size_sqmm": 50,
+      "insulation_type": "XLPE",
+      "insulation_thickness_mm": 1.0,
+      "voltage": 1100,
+      "current_rating_ground_amps": 134,
+      "current_rating_air_amps": 138
+    }
+  },
+  {
+    "sku": "POLYCAB-3C-AL-XLPE-70",
+    "product_name": "Three Core Aluminium XLPE Armoured Cable",
+    "specs": {
+      "cores": 3,
+      "conductor_material": "Aluminium",
+      "nominal_size_sqmm": 70,
+      "insulation_type": "XLPE",
+      "insulation_thickness_mm": 1.10,
+      "voltage": 1100,
+      "current_rating_ground_amps": 164,
+      "current_rating_air_amps": 175
+    }
+  }
+]

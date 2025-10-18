@@ -1,0 +1,11 @@
+{
+  "product_request": "LT XLPE Armoured Cable",
+  "specs_required": {
+    "cores": 3,
+    "conductor_material": "Aluminium",
+    "nominal_size_sqmm": 50,
+    "insulation_type": "XLPE",
+    "voltage": 1100,
+    "current_rating_ground_amps": 134 
+  }
+}
